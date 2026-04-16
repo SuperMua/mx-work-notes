@@ -1,0 +1,33 @@
+{
+  "name": "smart-work-notes-workspace",
+  "private": true,
+  "version": "1.0.0",
+  "packageManager": "pnpm@10.12.1",
+  "scripts": {
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "db:logs": "docker compose logs -f postgres",
+    "db:reset": "docker compose down -v",
+    "db:generate": "corepack pnpm --filter @smart-notes/api prisma:generate",
+    "db:migrate": "corepack pnpm --filter @smart-notes/api prisma:deploy",
+    "db:seed": "corepack pnpm --filter @smart-notes/api prisma:seed",
+    "dev:web": "corepack pnpm --filter @smart-notes/web dev",
+    "dev:admin": "corepack pnpm --filter @smart-notes/admin dev",
+    "dev:api": "corepack pnpm --filter @smart-notes/api start:dev",
+    "start:api": "node apps/api/dist/apps/api/src/main.js",
+    "preview:web": "corepack pnpm --filter @smart-notes/web preview --host 127.0.0.1 --port 4173",
+    "preview:admin": "corepack pnpm --filter @smart-notes/admin preview --host 127.0.0.1 --port 4174",
+    "delivery:start": "powershell -ExecutionPolicy Bypass -File ./scripts/start-delivery.ps1",
+    "delivery:status": "powershell -ExecutionPolicy Bypass -File ./scripts/status-delivery.ps1",
+    "delivery:stop": "powershell -ExecutionPolicy Bypass -File ./scripts/stop-delivery.ps1",
+    "build": "corepack pnpm -r build",
+    "build:web": "corepack pnpm --filter @smart-notes/web build",
+    "build:admin": "corepack pnpm --filter @smart-notes/admin build",
+    "build:api": "corepack pnpm --filter @smart-notes/api build",
+    "typecheck": "corepack pnpm --filter @smart-notes/web exec vue-tsc -b && corepack pnpm --filter @smart-notes/admin exec vue-tsc -b && corepack pnpm --filter @smart-notes/api exec tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@fontsource/noto-sans-sc": "^5.2.9",
+    "@fontsource/noto-serif-sc": "^5.2.9"
+  }
+}

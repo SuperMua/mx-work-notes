@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String            @id @default(cuid())
+  email          String            @unique
+  name           String
+  passwordHash   String
+  refreshTokens  RefreshToken[]
+  memberships    WorkspaceMember[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+}
+
+model RefreshToken {
+  id         String   @id @default(cuid())
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Workspace {
+  id          String            @id @default(cuid())
+  name        String
+  description String
+  members     WorkspaceMember[]
+  notes       NoteRecord[]
+  templates   TemplateRecord[]
+  tags        TagRecord[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+model WorkspaceMember {
+  id          String    @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        String
+  status      String    @default("active")
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@unique([workspaceId, userId])
+  @@index([userId])
+}
+
+model NoteRecord {
+  id          String    @id
+  workspaceId String
+  title       String
+  content     String
+  payload     Json
+  dueDate     DateTime?
+  remindAt    DateTime?
+  deletedAt   DateTime?
+  archivedAt  DateTime?
+  version     Int       @default(1)
+  createdAt   DateTime
+  updatedAt   DateTime
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, updatedAt])
+  @@index([workspaceId, deletedAt])
+}
+
+model TemplateRecord {
+  id          String    @id
+  workspaceId String
+  key         String
+  name        String
+  description String
+  payload     Json
+  version     Int       @default(1)
+  createdAt   DateTime
+  updatedAt   DateTime
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, updatedAt])
+}
+
+model TagRecord {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  color       String
+  usageCount  Int       @default(0)
+  pinned      Boolean   @default(false)
+  lastUsedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId, usageCount])
+}
